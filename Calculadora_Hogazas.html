@@ -261,18 +261,51 @@
     <div class="breakdown" id="breakdown"></div>
   </div>
 
-  <div class="ref-title">Referencia de empaque</div>
+  <div class="calc-card">
+    <label for="brioInput">Cantidad de Pan Brioche</label>
+    <div class="input-row">
+      <input type="number" id="brioInput" min="0" step="1" value="60" inputmode="numeric">
+    </div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="setBrioche(60)">60</button>
+      <button class="quick-btn" onclick="setBrioche(120)">120</button>
+      <button class="quick-btn" onclick="setBrioche(180)">180</button>
+      <button class="quick-btn" onclick="setBrioche(240)">240</button>
+      <button class="quick-btn" onclick="setBrioche(300)">300</button>
+      <button class="quick-btn" onclick="setBrioche(360)">360</button>
+    </div>
+
+    <div class="results">
+      <div class="res-box">
+        <div class="num" id="outBrioBolsas">0</div>
+        <div class="lbl">Bolsas Completas</div>
+      </div>
+      <div class="res-box">
+        <div class="num" id="outBrioIndiv">0</div>
+        <div class="lbl">Panes Individuales</div>
+      </div>
+      <div class="res-box peso">
+        <div class="num" id="outBrioPeso">0</div>
+        <div class="lbl">Peso Total (Kg)</div>
+      </div>
+      <div class="res-box peso">
+        <div class="num" id="outBrioTotal">0</div>
+        <div class="lbl">Total Pan Brioche</div>
+      </div>
+    </div>
+
+    <div class="breakdown" id="breakdownBrio"></div>
+  </div>
+
+  <div class="ref-title">Referencia de empaque — Hogaza</div>
   <div class="ref-note">
     1 <b>Jaba</b> = 9 Bolsas &nbsp;·&nbsp; 1 <b>Bolsa</b> = 4 Hogazas &nbsp;·&nbsp; 1 Jaba = <b>36 Hogazas</b> &nbsp;·&nbsp; Peso por Hogaza = <b>0.16 Kg</b>
   </div>
 
-  <div class="ref-title">Tabla de referencia rápida</div>
-  <table>
-    <thead>
-      <tr><th>Panes</th><th>Jabas Completas</th><th>Bolsas Adicionales</th><th>Panes Individuales</th><th>Peso Total Kg</th></tr>
-    </thead>
-    <tbody id="refTableBody"></tbody>
-  </table>
+  <div class="ref-title">Referencia de empaque — Pan Brioche</div>
+  <div class="ref-note">
+    1 <b>Bolsa</b> = 6 Pan Brioche &nbsp;·&nbsp; Peso por Pan = <b>0.125 Kg</b>
+  </div>
 
   <div class="footer">Artipan · Panadería Artesanal de Masa Madre · Generado 07/08/2026 08:03</div>
 </div>
@@ -315,19 +348,38 @@
     render();
   }
 
-  function buildRefTable() {
-    const cantidades = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
-    const tbody = document.getElementById('refTableBody');
-    tbody.innerHTML = cantidades.map(function(p) {
-      const r = calcular(p);
-      return '<tr><td>' + fmt(r.panes) + '</td><td>' + fmt(r.jabas) + '</td><td>' +
-             fmt(r.bolsas) + '</td><td>' + fmt(r.individuales) + '</td><td>' + fmt(r.peso) + '</td></tr>';
-    }).join('');
+  const BOLSA_BRIOCHE = 6;
+  const PESO_POR_BRIOCHE = 0.125;
+
+  function calcularBrioche(panes) {
+    panes = Math.max(0, Math.floor(Number(panes) || 0));
+    const bolsas = Math.floor(panes / BOLSA_BRIOCHE);
+    const individuales = panes - bolsas * BOLSA_BRIOCHE;
+    const peso = panes * PESO_POR_BRIOCHE;
+    return { panes, bolsas, individuales, peso };
+  }
+
+  function renderBrioche() {
+    const input = document.getElementById('brioInput');
+    const r = calcularBrioche(input.value);
+    document.getElementById('outBrioBolsas').textContent = fmt(r.bolsas);
+    document.getElementById('outBrioIndiv').textContent = fmt(r.individuales);
+    document.getElementById('outBrioPeso').textContent = fmt(r.peso);
+    document.getElementById('outBrioTotal').textContent = fmt(r.panes);
+    document.getElementById('breakdownBrio').innerHTML =
+      '<b>' + fmt(r.bolsas) + '</b> Bolsa(s) completa(s) &nbsp;+&nbsp; <b>' +
+      fmt(r.individuales) + '</b> Pan(es) individual(es)';
+  }
+
+  function setBrioche(n) {
+    document.getElementById('brioInput').value = n;
+    renderBrioche();
   }
 
   document.getElementById('panesInput').addEventListener('input', render);
-  buildRefTable();
+  document.getElementById('brioInput').addEventListener('input', renderBrioche);
   render();
+  renderBrioche();
 </script>
 
 </body>
